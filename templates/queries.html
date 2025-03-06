@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Queries</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .full-width-navbar {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    
+    <!-- Full-width Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark full-width-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" onclick="history.back(); return false;">Back</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h2 class="text-center">Project Queries</h2>
+
+        {% if session['role'] == 'client' %}
+            <div class="text-center mb-3">
+                <button class="btn btn-primary" id="toggleIssueForm">Report an Issue</button>
+            </div>
+            <div id="issueForm" class="mb-4 p-3 bg-white shadow rounded" style="display: none;">
+                <h3>Submit a Query</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="project_id" class="form-label">Select Project</label>
+                        <select name="project_id" class="form-select" required>
+                            <option value="">-- Select Project --</option>
+                            {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Describe your issue</label>
+                        <textarea name="message" class="form-control" placeholder="Describe your issue" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Attach Image (Optional)</label>
+                        <input type="file" name="image" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </form>
+            </div>
+        {% endif %}
+        
+        <h3 class="mt-4">Previous Queries</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Project</th>
+                        <th>Client</th>
+                        <th>Message</th>
+                        <th>Image</th>
+                        <th>Response</th>
+                        <th>Status</th>
+                        {% if session['role'] in ['admin', 'worker'] %} <th>Action</th> {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for query in queries %}
+                    <tr>
+                        <td>{{ query.project_id }}</td>
+                        <td>{{ query.client_id }}</td>
+                        <td>{{ query.message }}</td>
+                        <td>
+                            {% if query.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + query.image_path) }}" class="img-thumbnail" width="100">
+                            {% else %}
+                                No image
+                            {% endif %}
+                        </td>
+                        <td>{{ query.response if query.response else 'No response yet' }}</td>
+                        <td class="fw-bold {% if query.solved %}text-success{% else %}text-danger{% endif %}">
+                            {{ 'Solved' if query.solved else 'Pending' }}
+                        </td>
+                        
+                        {% if session['role'] in ['admin', 'worker'] and not query.solved %}
+                        <td>
+                            <form method="POST" action="{{ url_for('resolve_query', query_id=query.id) }}" class="d-flex">
+                                <input type="text" name="response" class="form-control me-2" placeholder="Enter response" required>
+                                <button type="submit" class="btn btn-success">Respond</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                
+                        {% if session['role'] == 'admin' and query.solved %}
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_query', query_id=query.id) }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('toggleIssueForm').addEventListener('click', function() {
+            var form = document.getElementById('issueForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+            } else {
+                form.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

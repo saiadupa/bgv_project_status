@@ -1,0 +1,138 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Worker Dashboard</title>
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <style>
+            .image-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            .image-grid img {
+                width: 100%;
+                border-radius: 8px;
+            }
+            .card {
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+            }
+            .full-width-navbar {
+            width: 100%;
+        }
+        </style>
+    </head>
+    <body class="bg-light">
+        
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark full-width-navbar">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Worker Dashboard</a>
+                <a class="text-center">Welcome, Worker</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    
+                <div class="d-flex align-items-center justify-content-between">
+                    <button class="btn btn-secondary" id="toggleImageGrid">Show Past Images</button>
+                </div>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="container mt-4">
+            <form method="POST" enctype="multipart/form-data" class="p-3 bg-white shadow rounded">
+                <h3>Upload Project Updates:</h3>
+
+                <div class="mb-3">
+                    <label for="project_id" class="form-label">Select Project</label>
+                    <select name="project_id" class="form-select" required>
+                        <option value="">-- Select Project --</option>
+                        {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Image</label>
+                    <input type="file" name="image" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+            
+            <div id="imageGrid" class="row d-none mt-3">
+                {% for update in updates %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='uploads/' + update.image_path) }}" class="card-img-top">
+                            <div class="card-footer text-center text-muted">Uploaded on: {{ update.timestamp.strftime('%B %d, %Y %H:%M') }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            
+            <h3 class="mt-4">Client Queries</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Project</th>
+                            <th>Client</th>
+                            <th>Message</th>
+                            <th>Image</th>
+                            <th>Response</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for query in queries %}
+                        <tr>
+                            <td>{{ query.project_id }}</td>
+                            <td>{{ query.client_id }}</td>
+                            <td>{{ query.message }}</td>
+                            <td>
+                                {% if query.image_path %}
+                                    <img src="{{ url_for('static', filename='uploads/' + query.image_path) }}" class="img-thumbnail" width="100">
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </td>
+                            <td>{{ query.response if query.response else 'No response yet' }}</td>
+                            <td class="fw-bold {% if query.solved %}text-success{% else %}text-danger{% endif %}">
+                                {{ 'Solved' if query.solved else 'Pending' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.getElementById('toggleImageGrid').addEventListener('click', function() {
+                var imageGrid = document.getElementById('imageGrid');
+                if (imageGrid.classList.contains('d-none')) {
+                    imageGrid.classList.remove('d-none');
+                    this.textContent = "Hide Past Images";
+                } else {
+                    imageGrid.classList.add('d-none');
+                    this.textContent = "Show Past Images";
+                }
+            });
+        </script>
+    </body>
+    </html>

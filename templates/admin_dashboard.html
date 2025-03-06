@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .dashboard-card {
+            border-radius: 10px;
+            border: 3px solid; 
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .border-blue { border-color: #007bff; }
+        .border-green { border-color: #28a745; }
+        .border-orange { border-color: #fd7e14; }
+        .border-red { border-color: #dc3545; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <h2 class="text-center">Welcome, Admin</h2>
+        <h3 class="text-center">Manage Projects and Users</h3>
+
+        <div class="row g-4">
+            <!-- Projects Section -->
+            <div class="col-md-6">
+                <div class="dashboard-card border-blue">
+                    <h4>Projects</h4>
+                    <ul class="list-group">
+                        {% for project in projects %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ project.name }}
+                                <span class="badge bg-info">Status: {{ project.status }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <a href="{{ url_for('create_project') }}" class="btn btn-primary mt-3">Create New Project</a>
+                </div>
+            </div>
+
+            <!-- Client Queries Section -->
+            <div class="col-md-6">
+                <div class="dashboard-card border-orange">
+                    <h4>Client Queries</h4>
+                    <a href="{{ url_for('queries') }}" class="btn btn-warning">View Queries</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management Section -->
+        <div class="row g-4 mt-3">
+            <div class="col-md-12">
+                <div class="dashboard-card border-green">
+                    <h3>Manage Users</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.role }}</td>
+                                    <td>
+                                        <a href="{{ url_for('update_user', user_id=user.id) }}" class="btn btn-sm btn-success">Edit</a>
+                                        <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users List Section -->
+        <div class="row g-4 mt-3">
+            <div class="col-md-12">
+                <div class="dashboard-card border-red">
+                    <h4>Users</h4>
+                    <ul class="list-group">
+                        {% for user in users %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ user.username }}
+                                <span class="badge bg-secondary">Role: {{ user.role }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    
+<h2>Update User</h2>
+<form method="POST">
+    <label>Username:</label>
+    <input type="text" name="username" value="{{ user.username }}" required>
+    
+    <label>New Password (leave blank to keep current):</label>
+    <input type="password" name="password">
+    
+    <label>Role:</label>
+    <select name="role">
+        <option value="client" {% if user.role == 'client' %}selected{% endif %}>Client</option>
+        <option value="worker" {% if user.role == 'worker' %}selected{% endif %}>Worker</option>
+        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+    </select>
+    
+    <button type="submit">Update</button>
+</form>
+<a href="{{ url_for('admin_dashboard') }}">Back</a>

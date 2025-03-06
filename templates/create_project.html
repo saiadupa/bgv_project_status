@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Project</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h2>Create a New Project</h2>
+    <form method="POST">
+        <input type="text" name="project_name" placeholder="Project Name" required>
+        <select name="client_id">
+            {% for client in clients %}
+                <option value="{{ client.id }}">{{ client.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Create Project</button>
+    </form>
+    <a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>
